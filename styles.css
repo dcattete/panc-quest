@@ -78,6 +78,7 @@ nav a:hover { color:var(--forest); }
 .tag-row { display:flex; gap:6px; flex-wrap:wrap; }
 .tag-row span { padding:6px 9px; border-radius:999px; background:#eef3e8; color:#4d6b53; font-size:11px; font-weight:800; }
 .image-credit { display:block; margin-top:16px; color:#9aa39c; font-size:9px; }
+.image-credit a { color:inherit; text-decoration-thickness:1px; text-underline-offset:2px; }
 
 .quiz-section { padding:92px clamp(24px,7vw,110px); display:grid; grid-template-columns:.82fr 1.18fr; align-items:center; gap:clamp(40px,7vw,100px); background:var(--forest); color:white; }
 .section-kicker.light { color:#c5e076; }

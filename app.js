@@ -29,8 +29,9 @@ const plants = [
   },
   {
     name: "Taioba", scientific: "Xanthosoma taioba", emoji: "🍀", color: "forest",
-    image: "https://agenciaminas.mg.gov.br/ckeditor_assets/pictures/7598/content_coordenadora_do_projeto_-_marinalva_-_arquivo_ascom_epamig.jpeg",
-    credit: "Imagem de referência: EPAMIG / Agência Minas", clue: "Folhas grandes — atenção redobrada",
+    image: "./taioba.jpg",
+    credit: "Foto: Davillis / Wikimedia Commons (CC BY-SA 4.0)",
+    creditHref: "https://commons.wikimedia.org/wiki/File:Taioba.jpg", clue: "Folhas grandes — atenção redobrada",
     description: "A taioba comestível exige identificação correta e preparo adequado. Existem plantas parecidas que não devem ser consumidas.",
     tags: ["Cozimento", "Cuidado", "Identificação"]
   }
@@ -66,7 +67,7 @@ function renderPlants() {
         <span class="plant-clue">${plant.clue}</span><h3>${plant.name}</h3><i>${plant.scientific}</i>
         <p>${plant.description}</p>
         <div class="tag-row">${plant.tags.map((tag) => `<span>${tag}</span>`).join("")}</div>
-        <small class="image-credit">${plant.credit}</small>
+        <small class="image-credit">${plant.creditHref ? `<a href="${plant.creditHref}" target="_blank" rel="noopener noreferrer">${plant.credit}</a>` : plant.credit}</small>
       </div>
     </article>`).join("");
 }
