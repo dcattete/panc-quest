@@ -1,28 +1,28 @@
 const plants = [
   {
     name: "Ora-pro-nóbis", scientific: "Pereskia aculeata", emoji: "🌿", color: "lime",
-    image: "https://p2.trrsf.com/image/fget/cf/774/0/images.terra.com/2024/02/29/1407094676-1-ora-pro-nobis-o-que-e-e-quais-os-beneficios-para-a-saude-e-para-o-lar.jpeg",
+    image: "./ora-pro-nobis.jpg",
     credit: "Imagem de referência: Terra", clue: "Um cacto com folhas",
     description: "É uma planta trepadeira da família dos cactos. Suas folhas são usadas em diferentes preparações culinárias.",
     tags: ["Folhas", "Fibras", "Horta"]
   },
   {
     name: "Capuchinha", scientific: "Tropaeolum majus", emoji: "🌼", color: "orange",
-    image: "https://pergunteaoagronomo.com.br/wp-content/uploads/2023/06/Tropaeolum_majus_flower_-_North_Carolina_Extension_Gardener_Plant_Toolbox_-_NC_State_University-transformed-1068x958.jpeg",
+    image: "./capuchinha.jpg",
     credit: "Imagem de referência: NC State / Pergunte ao Agrônomo", clue: "Uma flor que vai ao prato",
     description: "As flores e folhas podem ser usadas na alimentação. A flor colorida ajuda a deixar saladas mais alegres.",
     tags: ["Flores", "Cor", "Polinizadores"]
   },
   {
     name: "Peixinho-da-horta", scientific: "Stachys byzantina", emoji: "🍃", color: "silver",
-    image: "https://blog.cobasi.com.br/wp-content/uploads/2021/04/Planta-peixinho-da-horta-meio.png",
+    image: "./peixinho-da-horta.jpg",
     credit: "Imagem de referência: Cobasi", clue: "Folha macia e aveludada",
     description: "Tem folhas cobertas por pequenos pelos. Costuma ser preparada empanada, lembrando um peixinho frito.",
     tags: ["Folhas", "Textura", "Crocante"]
   },
   {
     name: "Beldroega", scientific: "Portulaca oleracea", emoji: "☘️", color: "yellow",
-    image: "https://static.laregion.es/clip/8ad918fa-8ea2-4200-926d-5a1e5a28ff21_source-aspect-ratio_1600w_0.jpg",
+    image: "./beldroega.jpg",
     credit: "Imagem de referência: La Región", clue: "Pequena, rasteira e suculenta",
     description: "Possui folhas pequenas e carnosas. Em muitos lugares cresce espontaneamente e pode ser confundida com mato.",
     tags: ["Suculenta", "Folhas", "Diversidade"]
@@ -56,6 +56,18 @@ let selectedAnswer = null;
 let score = 0;
 let bestScore = Number(localStorage.getItem("panc-quest-best") || 0);
 
+let matchState = "start";
+let matchScore = 0;
+let matchBestScore = Number(localStorage.getItem("panc-match-best") || 0);
+let matchSelectedPlant = null;
+let matchNameOrder = [];
+let matchImageOrder = [];
+let matchStreak = 0;
+let matchBonusAwarded = false;
+let matchMessage = { tone: "neutral", text: "Escolha primeiro um nome e depois uma fotografia." };
+let matchedPlants = new Set();
+let matchMistakes = {};
+
 function renderPlants() {
   document.querySelector("#plant-grid").innerHTML = plants.map((plant, index) => `
     <article class="plant-card ${plant.color}">
@@ -74,6 +86,196 @@ function renderPlants() {
 
 function renderBestScore() {
   document.querySelector("#best-score").textContent = `${bestScore}/10`;
+}
+
+function shuffle(items) {
+  const result = [...items];
+  for (let index = result.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [result[index], result[randomIndex]] = [result[randomIndex], result[index]];
+  }
+  return result;
+}
+
+function renderMatchBestScore() {
+  document.querySelector("#match-best-score").textContent = `${matchBestScore} pontos`;
+}
+
+function renderMatchGame() {
+  const shell = document.querySelector("#match-shell");
+
+  if (matchState === "start") {
+    shell.innerHTML = `
+      <div class="match-start">
+        <span class="match-main-icon">🔎</span>
+        <p class="quiz-label">MISSÃO BOTÂNICA</p>
+        <h3>Encontre os cinco pares</h3>
+        <p>Não precisa arrastar: toque em um nome e depois na imagem que você acha correta.</p>
+        <div class="match-score-rules">
+          <span><strong>+100</strong> primeira tentativa</span>
+          <span><strong>+70</strong> depois de uma dica</span>
+          <span><strong>+50</strong> sequência de 3</span>
+        </div>
+        <button class="start-button" id="start-match">Começar o jogo <span>→</span></button>
+      </div>`;
+    document.querySelector("#start-match").addEventListener("click", startMatchGame);
+    return;
+  }
+
+  if (matchState === "result") {
+    const result = matchScore <= 380
+      ? { emoji: "🌱", title: "Aprendiz da horta", text: "Você encontrou todos os pares e já começou a reconhecer as PANCs!" }
+      : matchScore <= 480
+        ? { emoji: "🌿", title: "Detetive das PANCs", text: "Ótimo olhar! Você percebeu detalhes importantes nas folhas e flores." }
+        : { emoji: "🏆", title: "Mestre das PANCs", text: "Incrível! Você conectou nomes e imagens com muita atenção." };
+    shell.innerHTML = `
+      <div class="match-result">
+        <span class="result-emoji">${result.emoji}</span>
+        <p class="quiz-label">TODAS CONECTADAS!</p>
+        <div class="match-result-score"><strong>${matchScore}</strong><span>pontos</span></div>
+        <h3>${result.title}</h3>
+        <p>${result.text}</p>
+        <button class="start-button" id="restart-match">Embaralhar e jogar de novo ↻</button>
+      </div>`;
+    document.querySelector("#restart-match").addEventListener("click", startMatchGame);
+    return;
+  }
+
+  shell.innerHTML = `
+    <div class="match-playing">
+      <div class="match-progress-row">
+        <span><strong>${matchedPlants.size}</strong> de ${plants.length} pares encontrados</span>
+        <strong>${matchScore} pontos</strong>
+      </div>
+      <div class="progress-track"><span style="width:${(matchedPlants.size / plants.length) * 100}%"></span></div>
+      <div class="match-message ${matchMessage.tone}" role="status">${matchMessage.text}</div>
+      <div class="match-board" id="match-board">
+        <div class="match-column match-names">
+          <span class="match-column-label">Nomes das PANCs</span>
+          ${matchNameOrder.map((plantIndex) => {
+            const plant = plants[plantIndex];
+            const isMatched = matchedPlants.has(plantIndex);
+            const isSelected = matchSelectedPlant === plantIndex;
+            return `<button class="match-name-card ${isMatched ? "matched" : ""} ${isSelected ? "selected" : ""}" data-match-name="${plantIndex}" ${isMatched ? "disabled" : ""}><span>${plant.emoji}</span><strong>${plant.name}</strong>${isMatched ? "<b>✓</b>" : ""}</button>`;
+          }).join("")}
+        </div>
+        <div class="match-column match-images">
+          <span class="match-column-label">Fotografias</span>
+          ${matchImageOrder.map((plantIndex) => {
+            const plant = plants[plantIndex];
+            const isMatched = matchedPlants.has(plantIndex);
+            return `<button class="match-image-card ${isMatched ? "matched" : ""}" data-match-image="${plantIndex}" ${isMatched ? "disabled" : ""} aria-label="Escolher esta fotografia"><img src="${plant.image}" alt="Fotografia para identificar" />${isMatched ? "<span class=\"match-check\">✓</span>" : ""}</button>`;
+          }).join("")}
+        </div>
+        <svg class="match-vines" id="match-vines" aria-hidden="true"></svg>
+      </div>
+    </div>`;
+
+  document.querySelectorAll("[data-match-name]").forEach((button) => button.addEventListener("click", () => chooseMatchName(Number(button.dataset.matchName))));
+  document.querySelectorAll("[data-match-image]").forEach((button) => button.addEventListener("click", () => chooseMatchImage(Number(button.dataset.matchImage))));
+  requestAnimationFrame(drawMatchVines);
+}
+
+function startMatchGame() {
+  const indexes = plants.map((_, index) => index);
+  matchState = "playing";
+  matchScore = 0;
+  matchSelectedPlant = null;
+  matchNameOrder = shuffle(indexes);
+  matchImageOrder = shuffle(indexes);
+  matchStreak = 0;
+  matchBonusAwarded = false;
+  matchMessage = { tone: "neutral", text: "Escolha primeiro um nome e depois uma fotografia." };
+  matchedPlants = new Set();
+  matchMistakes = {};
+  renderMatchGame();
+}
+
+function chooseMatchName(plantIndex) {
+  if (matchedPlants.has(plantIndex)) return;
+  matchSelectedPlant = plantIndex;
+  matchMessage = { tone: "selected", text: `Agora escolha a fotografia de <strong>${plants[plantIndex].name}</strong>.` };
+  renderMatchGame();
+}
+
+function chooseMatchImage(plantIndex) {
+  if (matchSelectedPlant === null) {
+    matchMessage = { tone: "try", text: "Primeiro escolha um nome na coluna da esquerda." };
+    renderMatchGame();
+    return;
+  }
+
+  const selectedPlant = matchSelectedPlant;
+  if (selectedPlant !== plantIndex) {
+    matchMistakes[selectedPlant] = true;
+    matchStreak = 0;
+    matchMessage = { tone: "try", text: `Quase! Dica sobre <strong>${plants[selectedPlant].name}</strong>: ${plants[selectedPlant].clue.toLowerCase()}.` };
+    renderMatchGame();
+    return;
+  }
+
+  const firstTry = !matchMistakes[selectedPlant];
+  const earnedPoints = firstTry ? 100 : 70;
+  let bonus = 0;
+  if (firstTry) {
+    matchStreak += 1;
+    if (matchStreak === 3 && !matchBonusAwarded) {
+      bonus = 50;
+      matchBonusAwarded = true;
+    }
+  } else {
+    matchStreak = 0;
+  }
+
+  matchedPlants.add(selectedPlant);
+  matchSelectedPlant = null;
+  matchScore += earnedPoints + bonus;
+  matchMessage = {
+    tone: "good",
+    text: `Conexão correta! <strong>+${earnedPoints}${bonus ? ` + ${bonus} de bônus` : ""} pontos.</strong> ${plants[selectedPlant].description}`
+  };
+  renderMatchGame();
+
+  if (matchedPlants.size === plants.length) {
+    if (matchScore > matchBestScore) {
+      matchBestScore = matchScore;
+      localStorage.setItem("panc-match-best", String(matchBestScore));
+      renderMatchBestScore();
+    }
+    window.setTimeout(() => {
+      matchState = "result";
+      renderMatchGame();
+    }, 850);
+  }
+}
+
+function drawMatchVines() {
+  if (matchState !== "playing") return;
+  const board = document.querySelector("#match-board");
+  const vines = document.querySelector("#match-vines");
+  if (!board || !vines) return;
+
+  const boardRect = board.getBoundingClientRect();
+  vines.setAttribute("viewBox", `0 0 ${boardRect.width} ${boardRect.height}`);
+  vines.replaceChildren();
+
+  matchedPlants.forEach((plantIndex) => {
+    const nameCard = board.querySelector(`[data-match-name="${plantIndex}"]`);
+    const imageCard = board.querySelector(`[data-match-image="${plantIndex}"]`);
+    if (!nameCard || !imageCard) return;
+
+    const nameRect = nameCard.getBoundingClientRect();
+    const imageRect = imageCard.getBoundingClientRect();
+    const x1 = nameRect.right - boardRect.left;
+    const y1 = nameRect.top + nameRect.height / 2 - boardRect.top;
+    const x2 = imageRect.left - boardRect.left;
+    const y2 = imageRect.top + imageRect.height / 2 - boardRect.top;
+    const middle = (x1 + x2) / 2;
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", `M ${x1} ${y1} C ${middle} ${y1}, ${middle} ${y2}, ${x2} ${y2}`);
+    path.setAttribute("class", "match-vine-path");
+    vines.appendChild(path);
+  });
 }
 
 function renderQuiz() {
@@ -148,7 +350,11 @@ function nextQuestion() {
 
 renderPlants();
 renderBestScore();
+renderMatchBestScore();
+renderMatchGame();
 renderQuiz();
+
+window.addEventListener("resize", () => requestAnimationFrame(drawMatchVines));
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("./service-worker.js").catch(() => undefined);

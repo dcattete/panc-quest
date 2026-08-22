@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#164b35" />
     <meta name="description" content="Uma experiência interativa para descobrir Plantas Alimentícias Não Convencionais e testar seus conhecimentos." />
     <meta property="og:title" content="PANC Quest — Você comeria essa planta?" />
-    <meta property="og:description" content="Explore cinco PANCs e encare um quiz de Ciências." />
+    <meta property="og:description" content="Explore cinco PANCs, jogue o desafio de associação e encare um quiz de Ciências." />
     <meta property="og:type" content="website" />
     <title>PANC Quest — Você comeria essa planta?</title>
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
@@ -17,7 +17,7 @@
     <main>
       <header class="topbar">
         <a class="brand" href="#inicio" aria-label="PANC Quest — início"><span class="brand-mark">PQ</span><span>PANC Quest</span></a>
-        <nav aria-label="Navegação principal"><a href="#descobrir">Descobrir</a><a href="#plantas">Plantas</a><a class="nav-quiz" href="#quiz">Jogar</a></nav>
+        <nav aria-label="Navegação principal"><a href="#descobrir">Descobrir</a><a href="#plantas">Plantas</a><a href="#jogo">Conectar</a><a class="nav-quiz" href="#quiz">Quiz</a></nav>
       </header>
 
       <section class="hero" id="inicio">
@@ -27,9 +27,9 @@
           <p>Conheça alimentos que podem estar bem perto de você, descubra por que eles ajudam a biodiversidade e teste seus conhecimentos.</p>
           <div class="hero-actions">
             <a class="primary-button" href="#plantas">Explorar as PANCs <span>↓</span></a>
-            <a class="secondary-button" href="#quiz">Ir para o quiz</a>
+            <a class="secondary-button" href="#jogo">Jogar agora</a>
           </div>
-          <div class="hero-facts" aria-label="Resumo do conteúdo"><span><strong>5</strong> plantas</span><span><strong>10</strong> perguntas</span><span><strong>∞</strong> descobertas</span></div>
+          <div class="hero-facts" aria-label="Resumo do conteúdo"><span><strong>5</strong> plantas</span><span><strong>2</strong> jogos</span><span><strong>∞</strong> descobertas</span></div>
         </div>
         <div class="hero-art" aria-hidden="true">
           <div class="sun-orb"></div>
@@ -59,9 +59,19 @@
         <div class="plant-grid" id="plant-grid"></div>
       </section>
 
+      <section class="match-section" id="jogo">
+        <div class="section-heading centered">
+          <span class="section-kicker">Jogo de associação</span>
+          <h2>Conecte a PANC</h2>
+          <p>Escolha o nome de uma planta e depois toque na fotografia correspondente. Cada acerto faz nascer um novo cipó!</p>
+        </div>
+        <div class="match-record"><span>🏅</span><div><small>Seu recorde neste aparelho</small><strong id="match-best-score">0 pontos</strong></div></div>
+        <div class="match-shell" id="match-shell" aria-live="polite"></div>
+      </section>
+
       <section class="quiz-section" id="quiz">
         <div class="quiz-intro">
-          <span class="section-kicker light">Hora do desafio</span>
+          <span class="section-kicker light">Segundo desafio</span>
           <h2>Você já é um<br />explorador de PANCs?</h2>
           <p>São 10 perguntas rápidas. Leia, escolha uma resposta e descubra sua pontuação.</p>
           <div class="score-memory"><span>⭐</span><div><small>Seu recorde neste aparelho</small><strong id="best-score">0/10</strong></div></div>
@@ -79,7 +89,7 @@
 
       <footer><a class="brand footer-brand" href="#inicio"><span class="brand-mark">PQ</span><span>PANC Quest</span></a><p>Projeto educativo de Ciências • 5º ano</p><a href="#inicio">Voltar ao início ↑</a></footer>
     </main>
-    <noscript>Ative o JavaScript para usar a galeria e o quiz.</noscript>
+    <noscript>Ative o JavaScript para usar a galeria e os jogos.</noscript>
     <script src="./app.js" defer></script>
   </body>
 </html>

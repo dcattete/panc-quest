@@ -1,6 +1,6 @@
-const CACHE = "panc-quest-v2";
+const CACHE = "panc-quest-v3";
 const ROOT = new URL("./", self.location.href).href;
-const CORE = [ROOT, new URL("styles.css", ROOT).href, new URL("app.js", ROOT).href, new URL("manifest.webmanifest", ROOT).href, new URL("icon.svg", ROOT).href, new URL("taioba.jpg", ROOT).href];
+const CORE = [ROOT, new URL("styles.css", ROOT).href, new URL("app.js", ROOT).href, new URL("manifest.webmanifest", ROOT).href, new URL("icon.svg", ROOT).href, new URL("ora-pro-nobis.jpg", ROOT).href, new URL("capuchinha.jpg", ROOT).href, new URL("peixinho-da-horta.jpg", ROOT).href, new URL("beldroega.jpg", ROOT).href, new URL("taioba.jpg", ROOT).href];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(CORE)));
