@@ -1,0 +1,12 @@
+{
+  "name": "PANC Quest — Você comeria essa planta?",
+  "short_name": "PANC Quest",
+  "description": "Explore Plantas Alimentícias Não Convencionais e teste seus conhecimentos.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fbf7e9",
+  "theme_color": "#164b35",
+  "lang": "pt-BR",
+  "icons": [{ "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
